@@ -50,3 +50,11 @@ modules.order
 Module.symvers
 Mkfile.old
 dkms.conf
+
+# CubeMX Files
+*.mxproject
+*.uvoptx
+*.doubl
+MDK-ARM/mm/
+MDK-ARM/RTE
+MDK-ARM/DebugConfig
