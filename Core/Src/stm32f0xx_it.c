@@ -22,6 +22,7 @@
 #include "stm32f0xx_it.h"
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
+#include "iwdg.h"
 #include "delay.h"
 #include "exti.h"
 #include "segment_display.h"
@@ -45,7 +46,6 @@
 
 /* Private variables ---------------------------------------------------------*/
 /* USER CODE BEGIN PV */
-static __IO uint8_t state = 0;
 
 /* USER CODE END PV */
 
@@ -130,16 +130,27 @@ void PendSV_Handler(void)
 void SysTick_Handler(void)
 {
   /* USER CODE BEGIN SysTick_IRQn 0 */
+	static uint8_t state = 0;
+	static uint16_t threeHundredCnt = 0;
 
   /* USER CODE END SysTick_IRQn 0 */
   HAL_IncTick();
   /* USER CODE BEGIN SysTick_IRQn 1 */
 	DBH_DecTick();
+	threeHundredCnt++;
 	
 	DBH_DisplayNumH(state);
 	DBH_DisplayNumL(state);
 	state += 1;
 	state %= 4;
+	
+	if (threeHundredCnt >= 300) //300ms controller
+	{
+		threeHundredCnt = 0;
+		
+		//reset iwdg counter
+		HAL_IWDG_Refresh(&hiwdg);
+	}
 
   /* USER CODE END SysTick_IRQn 1 */
 }
