@@ -17,47 +17,26 @@
 /* Private macro -------------------------------------------------------------*/
 /* Private variables ---------------------------------------------------------*/
 uint16_t rx_reg[]={ 
-0x0300,
-0x8e04,
-0xF140,
-0xED00,
-0x17E0,
-0xe0e0,
-0x8543,
-0x0700,
-0xA066,
-0xFFFF,
-0xFFE0,
-0x07a0,
-0x9E3C,
-0x1F00,
-0xD1c1,
-0x200F,
-0x01FF,
-0xE000,
-0x0339
-};
-
-uint16_t tx_reg[]={
-0x7C00,
-0x0c04,
-0xF140,
-0xED00,
-0x3fE0,
-0xe0e0,
-0x8543,
-0x0700,
-0xA066,
-0xFFFF,
-0xffe0,
-0x061f,
-0x9e3c,
-0x1f00,
-0xd1C1,
-0x200f,
-0x01FF,
-0xE000,
-0x0c00
+0x0300, //reg_addr=4, Set to RX Mode
+0x0C04, //reg_addr=5, default=0x0C04(RX)
+0xF140, //reg_addr=6, default=0xF140
+0xED00, //reg_addr=7, RX IF Gain=21dB
+0x17E0, //reg_addr=8, TX Settings
+0xE0E0, //reg_addr=9, T/R Control by DSP, PLL in RX Mode, RF Switch in RX Mode
+0x8543, //reg_addr=10, default=0x8543
+0x0700, //reg_addr=11, default=0x0700
+0xA066, //reg_addr=12, default=0xA066
+0xFFFF, //reg_addr=13, default=0xFFFF
+0xFFE0, //reg_addr=14, TX Settings
+0x07A0, //reg_addr=15, TX Settings
+0x9E3C, //reg_addr=16, TX Settings
+0x1F00, //reg_addr=17, TX Settings
+0xD1C7, //reg_addr=18, Speaker on if ON conditions last for 0-100ms, Speaker off if OFF conditions last for 7-800ms
+0x200F, //reg_addr=19, CIC Filter Gain=0dB, Output Amplitude of FM Demodulator=10, RX Audio Volume=1111
+0x01FF, //reg_addr=20, Enable AFC
+0xE000, //reg_addr=21, default=0xE000
+0x0300  //reg_addr=22, Ex-noise Coefficient for Speaker OFF Condition=00, RSSI Threshold for Speaker ON Condition=00000000
+//0xFF=speaker always off (during test)
 };
 
 /* Private function prototypes -----------------------------------------------*/
@@ -118,7 +97,14 @@ void writeToBK4802(uint8_t IC_addr, uint8_t reg_addr, uint8_t data_h, uint8_t da
 
 void DBH_BK4802_Init(void)
 {
-	writeToBK4802(IC_ADDR, 23, 0xA8, 0xD0);
+	writeToBK4802(IC_ADDR, 23, 0x60, 0xFF);
+	//reg_addr=23
+	//B15: 0-Disable Power Saving
+	//B14-B13: 11(3)-RX Active Period in Power Saving Mode=192ms
+	//B12-B11: 00(0)-Sleep Period in Power Saving Mode=384ms
+	//B08: 0-PIN7 is CALL, PIN24 is RSSI
+	//B07-B00: 0xFF(255)-Ex-noise Threshold for Speaker ON Condition
+	//0x00=speaker always off (during test)
 }
 
 void DBH_SetToRxMode(void)

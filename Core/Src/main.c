@@ -99,7 +99,14 @@ int main(void)
 	HAL_GPIO_TogglePin(LED_GPIO_Port, LED_Pin);
 	DBH_DelayMS(50);
 	
-	writing(0x90,23,0xa8,0XD0);
+	writing(0x90,23,0x60,0XFF);
+	//reg_addr=23
+	//B15: 0-Disable Power Saving
+	//B14-B13: 11(3)-RX Active Period in Power Saving Mode=192ms
+	//B12-B11: 00(0)-Sleep Period in Power Saving Mode=384ms
+	//B08: 0-PIN7 is CALL, PIN24 is RSSI
+	//B07-B00: 0xFF(255)-Ex-noise Threshold for Speaker ON Condition
+	//0x00=speaker always off (during test)
 	
 	for(i=4;i<=22;i++)
 	{
@@ -110,6 +117,14 @@ int main(void)
 	{
 		writing(0x90,i-3,HIGHBYTE(rx_freq[i-3]),LOWBYTE(rx_freq[i-3]));
 	}
+	
+	writing(0x90,32,0x31,0XFF);
+	//reg_addr=32
+	//B14: 0-ASK Data Decision by Averaged Value
+	//B13: 1-Average Speed=1024 samples
+	//B12: 1-Bypass Low Pass Filter
+	//B08: 1-RX Volume set by REG32<07:00>
+	//B07-B00: 0xFF(255)-Set the Volume of RX Audio
 	
 //	DBH_BK4802_Init();
 //	DBH_SetToRxMode();

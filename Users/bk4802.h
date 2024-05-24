@@ -19,7 +19,6 @@
 #define LOWBYTE(x)	((x) & 0xFF)
 
 extern unsigned short rx_reg[];
-extern unsigned short tx_reg[];
 
 /* Exported functions ------------------------------------------------------- */
 void DBH_BK4802_Init(void);
