@@ -24,6 +24,7 @@
 /* USER CODE BEGIN Includes */
 #include "delay.h"
 #include "bk4802.h"
+#include "segment_display.h"
 
 /* USER CODE END Includes */
 
@@ -67,8 +68,7 @@ void SystemClock_Config(void);
 int main(void)
 {
   /* USER CODE BEGIN 1 */
-	unsigned char i=0;
-
+	
   /* USER CODE END 1 */
 
   /* MCU Configuration--------------------------------------------------------*/
@@ -94,12 +94,7 @@ int main(void)
 	HAL_GPIO_WritePin(PA0_GPIO_Port, PA0_Pin, GPIO_PIN_SET); //Enable CE, turn on LED1.
 	DBH_DelayMS(5000);
 	
-	HAL_GPIO_TogglePin(LED_GPIO_Port, LED_Pin);
-	DBH_DelayMS(50);
-	HAL_GPIO_TogglePin(LED_GPIO_Port, LED_Pin);
-	DBH_DelayMS(50);
-	
-	writing(0x90,23,0x60,0XFF);
+	writing(0x90, 23, 0x60, 0xFF);
 	//reg_addr=23
 	//B15: 0-Disable Power Saving
 	//B14-B13: 11(3)-RX Active Period in Power Saving Mode=192ms
@@ -108,17 +103,17 @@ int main(void)
 	//B07-B00: 0xFF(255)-Ex-noise Threshold for Speaker ON Condition
 	//0x00=speaker always off (during test)
 	
-	for(i=4;i<=22;i++)
+	for(uint8_t i=4; i<=22; i++)
 	{
-		writing(0x90,i,HIGHBYTE(rx_reg[i-4]),LOWBYTE(rx_reg[i-4]));
+		writing(0x90, i, HIGHBYTE(rx_reg[i-4]), LOWBYTE(rx_reg[i-4]));
 	}
 			
-	for(i=5;i>2;i--)
+	for(uint8_t i=5; i>2; i--)
 	{
 		writing(0x90,i-3,HIGHBYTE(rx_freq[i-3]),LOWBYTE(rx_freq[i-3]));
 	}
 	
-	writing(0x90,32,0x31,0XFF);
+	writing(0x90, 32, 0x31, 0xFF);
 	//reg_addr=32
 	//B14: 0-ASK Data Decision by Averaged Value
 	//B13: 1-Average Speed=1024 samples
@@ -130,8 +125,7 @@ int main(void)
 //	DBH_SetToRxMode();
 //	DBH_SetRxFreq(rx_freq[0], rx_freq[1], rx_freq[2]);
 	
-	DBH_DelayMS(1000);
-	HAL_GPIO_TogglePin(LED_GPIO_Port, LED_Pin);
+	DBH_SetNum(439, 250);	
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -143,7 +137,7 @@ int main(void)
     /* USER CODE BEGIN 3 */
 		//Blink the LED.
 		HAL_GPIO_TogglePin(LED_GPIO_Port, LED_Pin);
-		DBH_DelayMS(500);
+		DBH_DelayMS(100);
   }
   /* USER CODE END 3 */
 }

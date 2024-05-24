@@ -58,3 +58,4 @@ dkms.conf
 MDK-ARM/mm/
 MDK-ARM/RTE
 MDK-ARM/DebugConfig
+MDK-ARM/EventRecorderStub.scvd

@@ -65,12 +65,24 @@ void Error_Handler(void);
 #define PTT_Pin GPIO_PIN_4
 #define PTT_GPIO_Port GPIOA
 #define PTT_EXTI_IRQn EXTI4_15_IRQn
+#define DIO1_Pin GPIO_PIN_8
+#define DIO1_GPIO_Port GPIOA
 #define CLK_Pin GPIO_PIN_9
 #define CLK_GPIO_Port GPIOA
 #define DATA_Pin GPIO_PIN_10
 #define DATA_GPIO_Port GPIOA
 #define LED_Pin GPIO_PIN_15
 #define LED_GPIO_Port GPIOA
+#define RCLK2_Pin GPIO_PIN_3
+#define RCLK2_GPIO_Port GPIOB
+#define SCLK2_Pin GPIO_PIN_4
+#define SCLK2_GPIO_Port GPIOB
+#define DIO2_Pin GPIO_PIN_5
+#define DIO2_GPIO_Port GPIOB
+#define RCLK1_Pin GPIO_PIN_6
+#define RCLK1_GPIO_Port GPIOB
+#define SCLK1_Pin GPIO_PIN_7
+#define SCLK1_GPIO_Port GPIOB
 
 /* USER CODE BEGIN Private defines */
 

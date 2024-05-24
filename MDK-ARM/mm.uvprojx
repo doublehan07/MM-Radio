@@ -523,6 +523,11 @@
               <FileType>1</FileType>
               <FilePath>..\Users\exti.c</FilePath>
             </File>
+            <File>
+              <FileName>segment_display.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Users\segment_display.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>

@@ -59,8 +59,7 @@ void IIC_Stop()
 
 void Write_IIC_Byte(unsigned char IIC_Byte)
 {
-	unsigned char i;
-	for(i=0;i<8;i++)
+	for(uint8_t i=0; i<8; i++)
 	{
 		if(IIC_Byte & 0x80)
 			HAL_GPIO_WritePin(GPIOA, DATA_Pin, GPIO_PIN_SET);//SDA=high;
@@ -109,8 +108,7 @@ void DBH_BK4802_Init(void)
 
 void DBH_SetToRxMode(void)
 {
-	uint8_t i = 0;
-	for (i = 4; i <=22; i++)
+	for (uint8_t i=4; i<=22; i++)
 	{
 		writeToBK4802(IC_ADDR, i, HIGHBYTE(rx_reg[i-4]), LOWBYTE(rx_reg[i-4]));
 	}

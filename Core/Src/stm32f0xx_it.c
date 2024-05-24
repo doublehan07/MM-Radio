@@ -24,6 +24,7 @@
 /* USER CODE BEGIN Includes */
 #include "delay.h"
 #include "exti.h"
+#include "segment_display.h"
 
 /* USER CODE END Includes */
 
@@ -44,6 +45,7 @@
 
 /* Private variables ---------------------------------------------------------*/
 /* USER CODE BEGIN PV */
+static __IO uint8_t state = 0;
 
 /* USER CODE END PV */
 
@@ -133,6 +135,11 @@ void SysTick_Handler(void)
   HAL_IncTick();
   /* USER CODE BEGIN SysTick_IRQn 1 */
 	DBH_DecTick();
+	
+	DBH_DisplayNumH(state);
+	DBH_DisplayNumL(state);
+	state += 1;
+	state %= 4;
 
   /* USER CODE END SysTick_IRQn 1 */
 }
