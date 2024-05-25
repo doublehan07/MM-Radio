@@ -55,7 +55,8 @@ dkms.conf
 *.mxproject
 *.uvoptx
 *.doubl
-MDK-ARM/mm/
+MDK-ARM/mm/*
+!MDK-ARM/mm/mm.hex
 MDK-ARM/RTE
 MDK-ARM/DebugConfig
 MDK-ARM/EventRecorderStub.scvd
