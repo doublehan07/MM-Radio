@@ -26,6 +26,7 @@
 #include "delay.h"
 #include "bk4802.h"
 #include "segment_display.h"
+#include "exti.h"
 
 /* USER CODE END Includes */
 
@@ -47,7 +48,6 @@
 /* Private variables ---------------------------------------------------------*/
 
 /* USER CODE BEGIN PV */
-uint16_t rx_freq[] = {0x52A8, 0x149F, 0x0000}; //439.250Mhz
 
 /* USER CODE END PV */
 
@@ -92,11 +92,11 @@ int main(void)
   MX_GPIO_Init();
   MX_IWDG_Init();
   /* USER CODE BEGIN 2 */
-	HAL_GPIO_WritePin(LED_GPIO_Port, LED_Pin, GPIO_PIN_SET); //Turn on LED to indicate the script is working.
+	HAL_GPIO_WritePin(LED_GPIO_Port, LED_Pin, GPIO_PIN_SET); //Turn on the LED to indicate that the script is active.
 	HAL_GPIO_WritePin(PA0_GPIO_Port, PA0_Pin, GPIO_PIN_SET); //Enable CE, turn on LED1.
 	DBH_DelayMS(1000);
 	
-	writing(0x90, 23, 0x60, 0xFF);
+	DBH_WriteTo4802(IC_ADDR, 23, 0x60, 0xFF);
 	//reg_addr=23
 	//B15: 0-Disable Power Saving
 	//B14-B13: 11(3)-RX Active Period in Power Saving Mode=192ms
@@ -105,17 +105,9 @@ int main(void)
 	//B07-B00: 0xFF(255)-Ex-noise Threshold for Speaker ON Condition
 	//0x00=speaker always off (during test)
 	
-	for(uint8_t i=4; i<=22; i++)
-	{
-		writing(0x90, i, HIGHBYTE(rx_reg[i-4]), LOWBYTE(rx_reg[i-4]));
-	}
-			
-	for(uint8_t i=5; i>2; i--)
-	{
-		writing(0x90,i-3,HIGHBYTE(rx_freq[i-3]),LOWBYTE(rx_freq[i-3]));
-	}
+	DBH_SetRXMode();
 	
-	writing(0x90, 32, 0x31, 0xFF);
+	DBH_WriteTo4802(IC_ADDR, 32, 0x31, 0xFF);
 	//reg_addr=32
 	//B14: 0-ASK Data Decision by Averaged Value
 	//B13: 1-Average Speed=1024 samples
@@ -123,11 +115,8 @@ int main(void)
 	//B08: 1-RX Volume set by REG32<07:00>
 	//B07-B00: 0xFF(255)-Set the Volume of RX Audio
 	
-//	DBH_BK4802_Init();
-//	DBH_SetToRxMode();
-//	DBH_SetRxFreq(rx_freq[0], rx_freq[1], rx_freq[2]);
-	
-	DBH_SetNum(439, 250);	
+	DBH_SetRXFreq(0x5259, 0xC651);
+	DBH_SetNum(437, 625);	
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -140,6 +129,71 @@ int main(void)
 		//Blink the LED.
 		HAL_GPIO_TogglePin(LED_GPIO_Port, LED_Pin);
 		DBH_DelayMS(100);
+		
+		if (freq_lock!=0 && ptt_cnt==0) //When PTT is pressed, switch the RX frequency.
+		{
+			switch(freq_channel_state)
+			{
+				//BY1CP
+				case 0: 
+					DBH_SetRXFreq(0x52A8, 0x149F);
+					DBH_SetNum(439, 250);
+					break;
+				
+				//Satellite TEVEL series, considering the Doppler effect.
+				case 1:
+					DBH_SetRXFreq(0x521F, 0x39E5);
+					DBH_SetNum(436, 410);
+					break;
+				case 2:
+					DBH_SetRXFreq(0x521E, 0xFC27);
+					DBH_SetNum(436, 405);
+					break;
+				case 3:
+					DBH_SetRXFreq(0x521E, 0xBE69);
+					DBH_SetNum(436, 400);
+					break;
+				case 4:
+					DBH_SetRXFreq(0x521E, 0x80AB);
+					DBH_SetNum(436, 395);
+					break;
+				case 5:
+					DBH_SetRXFreq(0x521E, 0x434E);
+					DBH_SetNum(436, 390);
+					break;
+				
+				//Satellite ISS, considering the Doppler effect.
+				case 6:
+					DBH_SetRXFreq(0x5262, 0xB07B);
+					DBH_SetNum(437, 810);
+					break;
+				case 7:
+					DBH_SetRXFreq(0x5262, 0x72BE);
+					DBH_SetNum(437, 805);
+					break;
+				case 8:
+					DBH_SetRXFreq(0x5262, 0x3500);
+					DBH_SetNum(437, 800);
+					break;
+				case 9:
+					DBH_SetRXFreq(0x5261, 0xF7A2);
+					DBH_SetNum(437, 795);
+					break;
+				case 10:
+					DBH_SetRXFreq(0x5261, 0xB9E5);
+					DBH_SetNum(437, 790);
+					break;
+				
+				//Satellite RS40s. Happy Children's Day!
+				case 11:
+					DBH_SetRXFreq(0x5259, 0xC651);
+					DBH_SetNum(437, 625);
+					break;
+				default: break;
+			}
+
+			freq_lock = 0; //Release the freq_lock to indicate that the frequency has changed.
+		}
   }
   /* USER CODE END 3 */
 }

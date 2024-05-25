@@ -15,9 +15,6 @@
 /* Exported macro ------------------------------------------------------------*/
 /* Exported functions ------------------------------------------------------- */
 void DBH_DecTick(void);
-//uint32_t GetTick(void);
-//void SetTick(uint32_t setTick);
-void DBH_DelayMS(uint32_t delayTimeMS);
-//void DBH_DelayUS(uint16_t delayTimeUS);
+void DBH_DelayMS(uint32_t delay_time_ms);
 
 #endif /* __sDELAY_H */

@@ -7,16 +7,22 @@
 
 /* Includes ------------------------------------------------------------------*/
 #include "bk4802.h"
-//#include "i2c.h"
 #include "delay.h"
 
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/
-#define IC_ADDR			0x90
-
 /* Private macro -------------------------------------------------------------*/
+#define SCL_HIGH		HAL_GPIO_WritePin(GPIOA, CLK_Pin, GPIO_PIN_SET)
+#define SCL_LOW 		HAL_GPIO_WritePin(GPIOA, CLK_Pin, GPIO_PIN_RESET)
+
+#define SDA_HIGH		HAL_GPIO_WritePin(GPIOA, DATA_Pin, GPIO_PIN_SET)
+#define SDA_LOW			HAL_GPIO_WritePin(GPIOA, DATA_Pin, GPIO_PIN_RESET)
+
+#define HIGHBYTE(x) ((x) >> 8)
+#define LOWBYTE(x)	((x) & 0xFF)
+
 /* Private variables ---------------------------------------------------------*/
-uint16_t rx_reg[]={ 
+static __IO uint16_t rx_reg[]={ 
 0x0300, //reg_addr=4, Set to RX Mode
 0x0C04, //reg_addr=5, default=0x0C04(RX)
 0xF140, //reg_addr=6, default=0xF140
@@ -41,82 +47,70 @@ uint16_t rx_reg[]={
 
 /* Private function prototypes -----------------------------------------------*/
 /* Private functions ---------------------------------------------------------*/
-void IIC_Start()
+//GPIO simulation for I2C protocol.
+//For some reasons, calling HAL_I2C_Master_Transmit() will cause a fatal error.
+//Instead of using HAL_I2C, we use GPIO simulation of I2C due to issues above.
+void IICStart()
 {
-  HAL_GPIO_WritePin(GPIOA, CLK_Pin, GPIO_PIN_SET);// SCL = high;		
-  HAL_GPIO_WritePin(GPIOA, DATA_Pin, GPIO_PIN_SET);// SDA = high;
-  HAL_GPIO_WritePin(GPIOA, DATA_Pin, GPIO_PIN_RESET); //SDA = low;
-  HAL_GPIO_WritePin(GPIOA, CLK_Pin, GPIO_PIN_RESET); //SCL = low;
+  SCL_HIGH;
+  SDA_HIGH;
+  SDA_LOW;
+  SCL_LOW;
 }
 
-void IIC_Stop()
+void IICStop()
 {
-  HAL_GPIO_WritePin(GPIOA, CLK_Pin, GPIO_PIN_RESET); // SCL = low;
-  HAL_GPIO_WritePin(GPIOA, DATA_Pin, GPIO_PIN_RESET); // SDA = low;
-  HAL_GPIO_WritePin(GPIOA, CLK_Pin, GPIO_PIN_SET);// SCL = high;
-  HAL_GPIO_WritePin(GPIOA, DATA_Pin, GPIO_PIN_SET);//  SDA = high;
+  SCL_LOW;
+  SDA_LOW;
+  SCL_HIGH;
+  SDA_HIGH;
 }
 
-void Write_IIC_Byte(unsigned char IIC_Byte)
+void WriteIICByte(uint8_t data)
 {
 	for(uint8_t i=0; i<8; i++)
 	{
-		if(IIC_Byte & 0x80)
-			HAL_GPIO_WritePin(GPIOA, DATA_Pin, GPIO_PIN_SET);//SDA=high;
+		if(data & 0x80)
+			SDA_HIGH;
 		else
-			HAL_GPIO_WritePin(GPIOA, DATA_Pin, GPIO_PIN_RESET); //SDA=low;
-		HAL_GPIO_WritePin(GPIOA, CLK_Pin, GPIO_PIN_SET);// SCL=high;
-		HAL_GPIO_WritePin(GPIOA, CLK_Pin, GPIO_PIN_RESET); //SCL=low;
-		IIC_Byte<<=1;
+			SDA_LOW;
+		SCL_HIGH;
+		SCL_LOW;
+		data<<=1;
 	}
-	HAL_GPIO_WritePin(GPIOA, DATA_Pin, GPIO_PIN_SET);// SDA=1;
-	HAL_GPIO_WritePin(GPIOA, CLK_Pin, GPIO_PIN_SET);//SCL=1;
-	HAL_GPIO_WritePin(GPIOA, CLK_Pin, GPIO_PIN_RESET); //SCL=0;
+	SDA_HIGH;
+	SCL_HIGH;
+	SCL_LOW;
 }
 
-void writing(unsigned char ICaddforwrite,unsigned char hadd,unsigned char hdata,unsigned char ldata)//WRITE TO BK4802N
+//Send control command to BK4802.
+//IC_addr is always set to 0x90.
+//reg_addr according to datasheet, ranges from 0 to 33.
+//data_h is the higher byte of the data
+//data_l is the lower byte of the data.
+void DBH_WriteTo4802(uint8_t IC_addr, uint8_t reg_addr, uint8_t data_h, uint8_t data_l)
 {
-	IIC_Start();
-	Write_IIC_Byte(ICaddforwrite);
-	Write_IIC_Byte(hadd); 
-	Write_IIC_Byte(hdata); 
-	Write_IIC_Byte(ldata); 
-	IIC_Stop();
+	IICStart();
+	WriteIICByte(IC_addr);
+	WriteIICByte(reg_addr); 
+	WriteIICByte(data_h); 
+	WriteIICByte(data_l); 
+	IICStop();
 	DBH_DelayMS(1);
 }
-	 
-void writeToBK4802(uint8_t IC_addr, uint8_t reg_addr, uint8_t data_h, uint8_t data_l) //Write to BK4802
-{
-	uint8_t tx_data[3];
-	tx_data[0] = reg_addr;
-	tx_data[1] = data_h;
-	tx_data[2] = data_l;
-	//HAL_I2C_Master_Transmit(&hi2c1, IC_addr, tx_data, 3, 1000);
-}
 
-void DBH_BK4802_Init(void)
+void DBH_SetRXMode(void)
 {
-	writeToBK4802(IC_ADDR, 23, 0x60, 0xFF);
-	//reg_addr=23
-	//B15: 0-Disable Power Saving
-	//B14-B13: 11(3)-RX Active Period in Power Saving Mode=192ms
-	//B12-B11: 00(0)-Sleep Period in Power Saving Mode=384ms
-	//B08: 0-PIN7 is CALL, PIN24 is RSSI
-	//B07-B00: 0xFF(255)-Ex-noise Threshold for Speaker ON Condition
-	//0x00=speaker always off (during test)
-}
-
-void DBH_SetToRxMode(void)
-{
-	for (uint8_t i=4; i<=22; i++)
+	for(uint8_t i=4; i<=22; i++)
 	{
-		writeToBK4802(IC_ADDR, i, HIGHBYTE(rx_reg[i-4]), LOWBYTE(rx_reg[i-4]));
+		DBH_WriteTo4802(IC_ADDR, i, HIGHBYTE(rx_reg[i-4]), LOWBYTE(rx_reg[i-4]));
 	}
 }
 
-void DBH_SetRxFreq(uint8_t fracn_h, uint8_t fracn_l, uint8_t div)
+//The fracn can be caculated using fracn.py.
+void DBH_SetRXFreq(uint16_t fracn_h, uint16_t fracn_l)
 {
-	writeToBK4802(IC_ADDR, 2, HIGHBYTE(div), LOWBYTE(div));
-	writeToBK4802(IC_ADDR, 1, HIGHBYTE(fracn_l), LOWBYTE(fracn_l));
-	writeToBK4802(IC_ADDR, 0, HIGHBYTE(fracn_h), LOWBYTE(fracn_h));
+	DBH_WriteTo4802(IC_ADDR, 2, HIGHBYTE(0x0000), LOWBYTE(0x0000));
+	DBH_WriteTo4802(IC_ADDR, 1, HIGHBYTE(fracn_l), LOWBYTE(fracn_l));
+	DBH_WriteTo4802(IC_ADDR, 0, HIGHBYTE(fracn_h),LOWBYTE(fracn_h));
 }

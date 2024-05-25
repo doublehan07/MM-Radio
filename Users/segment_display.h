@@ -14,7 +14,7 @@
 /* Exported constants --------------------------------------------------------*/
 /* Exported macro ------------------------------------------------------------*/
 /* Exported functions ------------------------------------------------------- */
-void DBH_SetNum(uint16_t numH, uint16_t numL);
+void DBH_SetNum(uint16_t num_H, uint16_t num_L);
 void DBH_DisplayNumH(uint8_t state);
 void DBH_DisplayNumL(uint8_t state);
 

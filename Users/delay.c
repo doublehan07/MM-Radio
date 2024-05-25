@@ -10,54 +10,32 @@
 /* Private define ------------------------------------------------------------*/
 /* Private macro -------------------------------------------------------------*/
 /* Private variables ---------------------------------------------------------*/
-static __IO uint32_t sTick;
+static __IO uint32_t s_tick; //s_tick is set for the user's delay function.
 
 /* Private function prototypes -----------------------------------------------*/
 /* Private functions ---------------------------------------------------------*/
-
-//Call for Systick IRQ Handler
-//Overwrite weak definition in stm32f1xx_hal.c
-
+//DBH_DexTick() should be called every 1 ms in the SysTick interrupt function.
 void DBH_DecTick(void)
 {
-	if (sTick != 0)
+	if (s_tick != 0)
 	{
-		sTick--;
+		s_tick--;
 	}
 }
 
 uint32_t GetTick(void)
 {
-	return sTick;
+	return s_tick;
 }
 
-void SetTick(uint32_t setTick)
+void SetTick(uint32_t set_tick)
 {
-	sTick = setTick;
+	s_tick = set_tick;
 }
 
-void DBH_DelayMS(uint32_t delayTimeMS)
+//Empty loop to create a delay of delay_time_ms milliseconds.
+void DBH_DelayMS(uint32_t delay_time_ms)
 {
-	SetTick(delayTimeMS);
+	SetTick(delay_time_ms);
 	while (GetTick() != 0);
 }
-
-//void DBH_DelayUS(uint16_t delayTimeUS)
-//{
-//	uint32_t temp;
-//	if (delayTimeUS > 1000)
-//		return;
-//	
-//	SysTick->LOAD = 9 * delayTimeUS;				//设置重装数值, 72MHZ时
-//	SysTick->CTRL = 0X01;										//使能，减到零时无动作，采用外部时钟源
-//	SysTick->VAL = 0;												//清零计数器
-//	do
-//	{
-//		temp = SysTick->CTRL;									//读取当前倒计数值
-//	}
-//	while((temp&0x01)&&(!(temp&(1<<16))));	//等待时间到达
-//	SysTick->CTRL = 0;											//关闭计数器
-//	SysTick->VAL = 0;												//清空计数器
-//	
-//	HAL_SYSTICK_Config(HAL_RCC_GetHCLKFreq()/1000);
-//}

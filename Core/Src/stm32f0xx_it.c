@@ -26,6 +26,7 @@
 #include "delay.h"
 #include "exti.h"
 #include "segment_display.h"
+#include "bk4802.h"
 
 /* USER CODE END Includes */
 
@@ -131,25 +132,49 @@ void SysTick_Handler(void)
 {
   /* USER CODE BEGIN SysTick_IRQn 0 */
 	static uint8_t state = 0;
-	static uint16_t threeHundredCnt = 0;
+	static uint16_t three_hundred_cnt = 0;
 
   /* USER CODE END SysTick_IRQn 0 */
   HAL_IncTick();
   /* USER CODE BEGIN SysTick_IRQn 1 */
+	//For DBH_DelayMS()
 	DBH_DecTick();
-	threeHundredCnt++;
 	
+	//For IWDG
+	three_hundred_cnt++;
+	
+	//For power-off function
+	if (power_off_cnt > 0)
+		power_off_cnt--;
+	
+	//For PTT stablization
+	if (ptt_cnt > 0)
+		ptt_cnt--;
+	
+	//For LED segment display
 	DBH_DisplayNumH(state);
 	DBH_DisplayNumL(state);
 	state += 1;
 	state %= 4;
 	
-	if (threeHundredCnt >= 300) //300ms controller
+	//300ms controller, for IWDG
+	if (three_hundred_cnt >= 300)
 	{
-		threeHundredCnt = 0;
-		
-		//reset iwdg counter
-		HAL_IWDG_Refresh(&hiwdg);
+		three_hundred_cnt = 0;
+		HAL_IWDG_Refresh(&hiwdg); //Reset the IWDG counter
+	}
+	
+	//Power off controller
+	if (power_off_cnt==0 && power_off_state==1)
+	{
+		if (HAL_GPIO_ReadPin(PWR_GPIO_Port, PWR_Pin) == GPIO_PIN_SET)
+		{
+			HAL_GPIO_WritePin(PA0_GPIO_Port, PA0_Pin, GPIO_PIN_RESET); //Disable CE. Turn off LED1.
+		}
+		else
+		{
+			power_off_state = 0;
+		}
 	}
 
   /* USER CODE END SysTick_IRQn 1 */
@@ -172,7 +197,6 @@ void EXTI2_3_IRQHandler(void)
   /* USER CODE END EXTI2_3_IRQn 0 */
   HAL_GPIO_EXTI_IRQHandler(PWR_Pin);
   /* USER CODE BEGIN EXTI2_3_IRQn 1 */
-	//PWR is pressed, power off.
 	
   /* USER CODE END EXTI2_3_IRQn 1 */
 }
@@ -187,7 +211,7 @@ void EXTI4_15_IRQHandler(void)
   /* USER CODE END EXTI4_15_IRQn 0 */
   HAL_GPIO_EXTI_IRQHandler(PTT_Pin);
   /* USER CODE BEGIN EXTI4_15_IRQn 1 */
-
+	
   /* USER CODE END EXTI4_15_IRQn 1 */
 }
 

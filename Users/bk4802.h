@@ -15,16 +15,11 @@
 /* Exported types ------------------------------------------------------------*/
 /* Exported constants --------------------------------------------------------*/
 /* Exported macro ------------------------------------------------------------*/
-#define HIGHBYTE(x) ((x) >> 8)
-#define LOWBYTE(x)	((x) & 0xFF)
-
-extern unsigned short rx_reg[];
+#define IC_ADDR			0x90
 
 /* Exported functions ------------------------------------------------------- */
-void DBH_BK4802_Init(void);
-void DBH_SetToRxMode(void);
-void DBH_SetRxFreq(uint8_t fracn_h, uint8_t fracn_l, uint8_t div);
-
-void writing(unsigned char ICaddforwrite,unsigned char hadd,unsigned char hdata,unsigned char ldata);
+void DBH_WriteTo4802(uint8_t IC_addr, uint8_t reg_addr, uint8_t data_h, uint8_t data_l);
+void DBH_SetRXMode(void);
+void DBH_SetRXFreq(uint16_t fracn_h, uint16_t fracn_l);
 
 #endif /* __sBK4802_H */
