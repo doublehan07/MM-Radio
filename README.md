@@ -3,7 +3,7 @@
 
 本项目的BK4802驱动代码，参考了[BG7QKU - STM32_SIMPLE_CONTROL_BK4802N](https://github.com/BG7QKU/STM32_SIMPLE_CONTROL_BK4802N)。再次向[BG7QKU](https://github.com/BG7QKU)老师表示感谢！
 
-## 文档/Ducumentation
+## 文档/Documentation
 - [English](README-en.md)
 - [中文 (Chinese)](README.md)
 
@@ -36,9 +36,9 @@
 | 7 | 收音机天线 | 1 | （可选项）如果您需要接收本地中继或卫星信号，推荐使用对应频段的收音机/手台天线 | ![](./docs/images/6-ANT.jpg) |
 
 ## 对酱机电路原理图
-[对酱机原始电路原理图](./docs/mm-circuit.pdf)
+![对酱机原始电路原理图](./docs/mm-circuit.jpg)
 
-以上原理图未仔细检查，可能包含错误，请谨慎使用。
+以上[原理图](./docs/mm-circuit.pdf)未仔细检查，可能包含错误，请谨慎使用。
 
 ## 改造电路连接示意图
 ![单片机和对酱机主板的连接示意图](./docs/images/BoardConnection.jpg)
@@ -46,22 +46,49 @@
 ![单片机和数码管的连接示意图](./docs/images/SegConnection.jpg)
 
 ## 电路修改方法
+可以直接参考以下两个视频:
+- [麦乐鸡薯条对酱机 全网首拆](https://www.bilibili.com/video/BV1XpuieuEW7/)
+- [麦 门 收 音 机【硬核】](https://www.bilibili.com/video/BV1ar421w7CU/)
+
 ### 第一步：拆解对酱机
-![](./DisassembleMM.gif)
+![](./docs/images/DisassembleMM.gif)
+
+拆解后的结构如下所示。需要用到三角形螺丝批头、十字螺丝批头，以及电烙铁。
+
+![](./docs/images/mm-teardown.jpg)
+
 ### 第二步：拆掉对酱机主板的单片机
-![](./DisassembleMCU.gif)
+用刀头会比较好拆。
+
+![](./docs/images/DisassembleMCU.gif)
+
 ### 第三步：短路对酱机主板的滤波器电路
-![](./ShortFilter.gif)
+飞线比较省事，拆LC也行。
+
+![](./docs/images/ShortFilter.gif)
+
 ### 第四步：焊接跳线
-![](./Wire.gif)
-### 第五步：焊接50-1.5同轴线
-![](./ANT.gif)
-### 第六步：重新连接电池盒簧片
-![](./Power.gif)
-### 第七步：连接单片机和数码管
+如果还想把麦乐鸡和薯条装回去，最好选择细线。（杜邦线勉强能装回去）
+
+![](./docs/images/Wire.gif)
+
+### 第五步：重新连接电池盒簧片
+把飞线改造后的电路板放回原位，拧回电路板上的螺丝，然后重新焊接电池盒簧片到电路板上。
+
+![](./docs/images/Power.gif)
+
+### 第六步：焊接50-1.5同轴线
+50-1.5同轴线的另一头可以焊上SMA或M型连接器，方便连接U段天线。
+
+![](./docs/images/ANT.gif)
+
+### 第七步：重新安装外壳
+![](./docs/images/McNuggets-Radio.jpg)
+
+### 第八步：连接单片机和数码管
 ![](./docs/images/BoardConnection.jpg)
 ![](./docs/images/SegConnection.jpg)
-### 第八步：单片机烧录程序
+### 第九步：单片机烧录程序
 
 ## 开发者选项
 如果您希望修改工程文件、源代码或单片机，最简单的方法是使用[STM32CubeMX](https://www.st.com/en/development-tools/stm32cubemx.html)软件打开[mm.ioc](./mm.ioc)，修改引脚配置、单片机资源分配情况。

@@ -11,7 +11,7 @@ The driver code of the BK4802 references [STM32_SIMPLE_CONTROL_BK4802N](https://
 According to this [report](https://daoinsights.com/news/mcdonalds-releases-retro-walkie-talkie-for-childrens-day-while-kfc-hosts-nostalgic-toy-fair/)
 > Recently, McDonald’s kicked off a series of activities ahead of Children’s Day on 1 June, focusing on their classic McNuggets. The fast-food chain launched a special offer of 20 McNuggets for 20 RMB and a variety of limited edition ‘Walkie-Talkie’ toys. The ‘Walkie-Talkie’ is designed in the style of the classic McNuggets and fries. Users can also buy a ‘Walkie-Talkie’ and a graffiti sticker for an additional 38 RMB. On 22 May, the McDonald’s ‘Walkie-Talkie’ toy went on sale, causing the restaurant’s app to crash. While a shop clerk mentioned potential restocking, it’s uncertain if the product will be replenished.
 
-The toy MacNuggets and fries Walkie-Talkies are really cute. They can transmit and receive FM signals at 409.9 MHz.
+The toy McNuggets and fries Walkie-Talkies are really cute. They can transmit and receive FM signals at 409.9 MHz.
 
 ![](/docs/images/toys.jpg)
 
@@ -27,14 +27,15 @@ This repository contains everything I modified to make them work. Enjoy! :)
 This project is under the [BSD 2-Clause license](./LICENSE).
 
 ## Usage
-If you don't want to modify the source code, you can use /MDK-ARM/mm/mm.hex directly.
+If you don't want to modify the source code, you can use [mm.hex](/MDK-ARM/mm/mm.hex) directly.
 
 Software like [STM32CubeProgrammer](https://www.st.com/en/development-tools/stm32cubeprog.html) can easily download the hex file to the MCU.
 
 ## The Circuit of the Toy Walkie-Talkie
-[Circuit of the Toy Walkie-Talkie](./docs/mm-circuit.pdf)
 
-The circuit above may contain errors. Use carefully!
+![Circuit of the Toy Walkie-Talkie](./docs/mm-circuit.jpg)
+
+The [circuit](./docs/mm-circuit.pdf) above may contain errors. Use carefully!
 
 ## Wire Connection
 ![](/docs/images/BoardConnection_en.jpg)
